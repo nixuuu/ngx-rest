@@ -21,4 +21,10 @@ export class UsersService {
       body: user
     });
   }
+
+  @Get()
+  async listAsync() {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return new Request<{ test: string }>({});
+  }
 }

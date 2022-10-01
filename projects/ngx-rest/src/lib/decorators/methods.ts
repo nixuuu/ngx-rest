@@ -11,10 +11,9 @@ const MethodDecorator = (method: Methods) => (path?: string, options?: any) => {
     const originalMethod = descriptor.value;
     path = path ?? '';
 
-    return {
-      ...descriptor,
-      value: patchMethod(method, path, originalMethod)
-    };
+    descriptor.value = patchMethod(method, path, originalMethod);
+
+    return descriptor;
   };
 };
 

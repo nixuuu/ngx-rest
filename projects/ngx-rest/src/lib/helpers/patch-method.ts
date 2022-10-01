@@ -1,16 +1,20 @@
-import { Observable } from 'rxjs';
+import { Subscribable } from 'rxjs';
+import { isPromise } from 'rxjs/internal/util/isPromise';
 import { Request } from '../classes';
 import { HttpClientFinder } from '../classes/http-client-finder';
 import { NgxServiceFinder } from '../classes/ngx-service-finder';
-import { ApiClientParams, NGX_API_CLIENT_OPTIONS } from '../decorators';
+import {
+  ApiClientParams,
+  ApiClientParamsOptions,
+  NGX_API_CLIENT_OPTIONS
+} from '../decorators';
 import { Methods } from '../enums/methods';
 
-export const patchMethod = (
-  method: Methods,
-  path: string,
-  originalMethod: any
-) => {
-  return function <T = unknown>(this: any, ...args: any[]): Observable<T> {
+export const patchMethod = (method: Methods, path: string, callback: any) => {
+  return function <T = any>(
+    this: any,
+    ...args: any[]
+  ): PromiseLike<Subscribable<T>> | Subscribable<T> {
     const ngxRest = NgxServiceFinder.getNgxService(this);
     const http = HttpClientFinder.getHttpClient(this);
 
@@ -26,12 +30,20 @@ export const patchMethod = (
       controllerOptions = { path: controllerOptions };
     }
 
-    const options: Request<T> = originalMethod(...args);
+    const handleSyncCallback = (
+      result: Request<T>
+    ): PromiseLike<Subscribable<T>> | Subscribable<T> => {
+      result.mergeApiClientOptions(controllerOptions as ApiClientParamsOptions);
 
-    options.mergeApiClientOptions(controllerOptions);
+      return ngxRest
+        ? ngxRest.request<T>(method, path, result)
+        : result.makeRequest(method, path, http);
+    };
 
-    return ngxRest
-      ? ngxRest.request<T>(method, path, options)
-      : options.makeRequest(method, path, http);
+    const options: Request<T> | Promise<Request<T>> = callback(...args);
+
+    return isPromise(options)
+      ? options.then(handleSyncCallback)
+      : handleSyncCallback(options);
   };
 };
