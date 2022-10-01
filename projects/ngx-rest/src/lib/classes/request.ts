@@ -6,11 +6,8 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Subscriber } from 'rxjs/internal/Subscriber';
-import {
-  ApiClientParamsOptions,
-  Methods,
-  QueryParamValue
-} from '../decorators';
+import { ApiClientParamsOptions, QueryParamValue } from '../decorators';
+import { Methods } from '../enums/methods';
 import { JoinBaseUrl } from '../helpers/join-base-url';
 import { joinUrl } from '../helpers/join-url';
 import { mapUrlParameters } from '../helpers/map-url-parameters';

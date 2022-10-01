@@ -1,15 +1,3 @@
 export * from './methods';
 export * from './base-url.decorator';
-export { ApiClient } from './api-client';
-export { ApiClientParams } from './api-client';
-export { ApiClientParamsOptions } from './api-client';
-export { QueryParamValue } from './api-client';
-export { NGX_API_CLIENT_OPTIONS } from './api-client';
-export { Request } from '../classes/request';
-export { RequestOptionsProps } from '../classes/request';
-export { Headers } from '../classes/request';
-export { NgxApiContext } from '../http-contexts/api-context';
-export { NgxApiToken } from '../http-contexts/api-context';
-export { Methods } from '../enums/methods';
-export { patchMethod } from '../helpers/patch-method';
-export { BaseService } from '../types/base-service.type';
+export * from './api-client';

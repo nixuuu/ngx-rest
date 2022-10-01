@@ -1,11 +1,8 @@
 import { Observable } from 'rxjs';
+import { Request } from '../classes';
 import { HttpClientFinder } from '../classes/http-client-finder';
 import { NgxServiceFinder } from '../classes/ngx-service-finder';
-import {
-  ApiClientParams,
-  NGX_API_CLIENT_OPTIONS,
-  Request
-} from '../decorators';
+import { ApiClientParams, NGX_API_CLIENT_OPTIONS } from '../decorators';
 import { Methods } from '../enums/methods';
 
 export const patchMethod = (

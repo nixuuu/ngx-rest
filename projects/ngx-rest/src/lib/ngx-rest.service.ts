@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Methods, Request } from './decorators';
+import { Request } from './classes';
+import { Methods } from './enums/methods';
 import { JoinBaseUrl } from './helpers/join-base-url';
 import { joinUrl } from './helpers/join-url';
 import { mapUrlParameters } from './helpers/map-url-parameters';
