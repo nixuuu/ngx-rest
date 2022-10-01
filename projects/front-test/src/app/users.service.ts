@@ -1,12 +1,14 @@
-import {Injectable} from '@angular/core';
-import {ApiClient, Get, NgxRestService, Post, Request} from "ngx-rest";
-import {Observable} from "rxjs";
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { ApiClient, Get, Post, Request } from 'ngx-rest';
+import { Observable } from 'rxjs';
 
-@Injectable({providedIn: 'root',})
-@ApiClient('todos')
+@Injectable({ providedIn: 'root' })
+@ApiClient({
+  baseUrl: 'https://jsonplaceholder.typicode.com/todos'
+})
 export class UsersService {
-  constructor(protected http: NgxRestService) {
-  }
+  constructor(protected http: HttpClient) {}
 
   @Get()
   list(): Observable<any> {
