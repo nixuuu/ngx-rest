@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Request } from './classes';
+import { BaseRequest } from './classes/requests/base.request';
 import { Methods } from './enums/methods';
 import { JoinBaseUrl } from './helpers/join-base-url';
 import { joinUrl } from './helpers/join-url';
@@ -30,7 +30,11 @@ export class NgxRestService {
     console.log(this.options);
   }
 
-  request<T>(method: Methods, url: string, options: Request<T>): Observable<T> {
+  request<T>(
+    method: Methods,
+    url: string,
+    options: BaseRequest<T>
+  ): Observable<T> {
     console.log('request', method, url, options);
     const baseUrl = options?.baseUrl ?? this.options.baseUrl;
     url = joinUrl(options.controllerOptions?.path ?? '', url);

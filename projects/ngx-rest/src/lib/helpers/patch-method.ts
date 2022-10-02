@@ -1,8 +1,8 @@
 import { Subscribable } from 'rxjs';
 import { isPromise } from 'rxjs/internal/util/isPromise';
-import { Request } from '../classes';
 import { HttpClientFinder } from '../classes/http-client-finder';
 import { NgxServiceFinder } from '../classes/ngx-service-finder';
+import { BaseRequest } from '../classes/requests/base.request';
 import {
   ApiClientParams,
   ApiClientParamsOptions,
@@ -31,7 +31,7 @@ export const patchMethod = (method: Methods, path: string, callback: any) => {
     }
 
     const handleSyncCallback = (
-      result: Request<T>
+      result: BaseRequest<T>
     ): PromiseLike<Subscribable<T>> | Subscribable<T> => {
       result.mergeApiClientOptions(controllerOptions as ApiClientParamsOptions);
 
@@ -40,7 +40,7 @@ export const patchMethod = (method: Methods, path: string, callback: any) => {
         : result.makeRequest(method, path, http);
     };
 
-    const options: Request<T> | Promise<Request<T>> = callback(...args);
+    const options: BaseRequest<T> | Promise<BaseRequest<T>> = callback(...args);
 
     return isPromise(options)
       ? options.then(handleSyncCallback)

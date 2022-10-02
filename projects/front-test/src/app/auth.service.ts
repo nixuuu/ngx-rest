@@ -1,8 +1,6 @@
-import {Injectable} from "@angular/core";
-import {ApiClient, Request, NgxRestService, Get} from 'ngx-rest';
-import {Observable} from "rxjs";
-import {environment} from "../environments/environment";
-import {MyDataResponse} from "../interfaces/my-data";
+import { Injectable } from '@angular/core';
+import { ApiClient, Get, NgxRestService, TextRequest } from 'ngx-rest';
+import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 @ApiClient({
@@ -12,12 +10,11 @@ import {MyDataResponse} from "../interfaces/my-data";
   }
 })
 export class AuthService {
-  constructor(protected http: NgxRestService) {
-  }
+  constructor(protected http: NgxRestService) {}
 
   @Get('posts/:id')
-  login(id: any): Observable<MyDataResponse> {
-    return new Request<MyDataResponse>({
+  login(id: any) {
+    return new TextRequest({
       queryParams: {
         page: 2
       },

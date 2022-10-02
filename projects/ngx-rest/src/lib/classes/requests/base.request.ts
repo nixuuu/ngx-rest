@@ -1,37 +1,16 @@
-import {
-  HttpClient,
-  HttpContext,
-  HttpHeaders,
-  HttpParams
-} from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import { map, Observable } from 'rxjs';
 import { Subscriber } from 'rxjs/internal/Subscriber';
-import { ApiClientParamsOptions, QueryParamValue } from '../decorators';
-import { Methods } from '../enums/methods';
-import { JoinBaseUrl } from '../helpers/join-base-url';
-import { joinUrl } from '../helpers/join-url';
-import { mapUrlParameters } from '../helpers/map-url-parameters';
+import { ApiClientParamsOptions, QueryParamValue } from '../../decorators';
+import { Methods } from '../../enums/methods';
+import { JoinBaseUrl } from '../../helpers/join-base-url';
+import { joinUrl } from '../../helpers/join-url';
+import { mapUrlParameters } from '../../helpers/map-url-parameters';
+import { Constructor } from '../../types/constructor.type';
+import { Headers } from '../../types/request/headers';
+import { RequestOptionsProps } from '../../types/request/requestOptionsProps';
 
-export type Headers =
-  | HttpHeaders
-  | {
-      [header: string]: string | string[];
-    };
-
-export interface RequestOptionsProps {
-  baseUrl?: string;
-  context?: HttpContext;
-  queryParams?: any;
-  body?: any;
-  headers?: Headers;
-  observe?: any;
-  params?: any;
-  reportProgress?: boolean;
-  responseType?: any;
-  withCredentials?: boolean;
-}
-
-export class Request<T, K = any>
+export class BaseRequest<T, K = any>
   extends Observable<T>
   implements RequestOptionsProps
 {
@@ -45,6 +24,7 @@ export class Request<T, K = any>
   reportProgress?: boolean;
   responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
   withCredentials?: boolean;
+  response?: Constructor<T>;
 
   controllerOptions?: ApiClientParamsOptions;
 
@@ -107,12 +87,23 @@ export class Request<T, K = any>
       this.toHttpOptions()
     ) as unknown as Observable<T>;
 
-    httpRequest.subscribe({
-      next: this.subscriber?.next,
-      error: this.subscriber?.error,
-      complete: this.subscriber?.complete
-    });
+    httpRequest
+      .pipe(
+        map((requestResponse) =>
+          this.response ? new this.response(requestResponse) : requestResponse
+        )
+      )
+      .subscribe({
+        next: (response) => this.subscriber?.next(response),
+        error: (error) => this.subscriber?.error(error),
+        complete: () => this.subscriber?.complete()
+      });
 
+    return this;
+  }
+
+  map(response: Constructor<T>): this {
+    this.response = response;
     return this;
   }
 }

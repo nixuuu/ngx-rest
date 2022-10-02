@@ -1,7 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiClient, Get, Post, Request } from 'ngx-rest';
-import { Observable } from 'rxjs';
+import {
+  ApiClient,
+  ArrayBufferRequest,
+  BlobRequest,
+  Get,
+  JsonRequest,
+  Post
+} from 'ngx-rest';
+import { UserListResponse } from './classes/UserListResponse';
 
 @Injectable({ providedIn: 'root' })
 @ApiClient({
@@ -11,20 +18,18 @@ export class UsersService {
   constructor(protected http: HttpClient) {}
 
   @Get()
-  list(): Observable<any> {
-    return new Request<any>({});
+  list() {
+    return new ArrayBufferRequest();
   }
 
   @Post()
-  addUser(user: any): Observable<any> {
-    return new Request({
-      body: user
-    });
+  addUser() {
+    return new BlobRequest();
   }
 
   @Get()
   async listAsync() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return new Request<{ test: string }>({});
+    return new JsonRequest().map(UserListResponse);
   }
 }

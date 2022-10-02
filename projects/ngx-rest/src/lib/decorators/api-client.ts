@@ -1,5 +1,6 @@
 import { HttpContext } from '@angular/common/http';
 import { OperatorFunction } from 'rxjs';
+import { Headers } from '../types/request/headers';
 
 export const NGX_API_CLIENT_OPTIONS = Symbol('NGX_API_CLIENT_OPTIONS');
 export type QueryParamValue =
@@ -12,7 +13,7 @@ export interface ApiClientParamsOptions {
   baseUrl?: string;
   queryParams?: { [key: string]: QueryParamValue };
   httpContext?: HttpContext;
-  headers?: { [key: string]: string };
+  headers?: Headers;
   path?: string;
   pipes?: OperatorFunction<any, any>[];
 }
