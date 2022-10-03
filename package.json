@@ -1,15 +1,17 @@
 {
-  "name": "ngx-rest",
+  "name": "@nixcode/ngx-rest",
   "version": "0.0.0",
+  "author": "Damian Plewa <damianp96@gmail.com>",
+  "repository": "https://github.com/nixuuu/ngx-rest.git",
   "scripts": {
     "ng": "ng",
     "start": "ng serve front-test",
-    "build": "ng build",
+    "build": "ng build ngx-rest",
     "watch": "ng build ngx-rest --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
   },
-  "private": true,
+  "private": false,
   "dependencies": {
     "@angular/animations": "^14.2.0",
     "@angular/common": "^14.2.0",
@@ -47,5 +49,37 @@
     "ng-packagr": "^14.2.0",
     "prettier": "^2.7.1",
     "typescript": "~4.7.2"
+  },
+  "release": {
+    "branches": [
+      "+([0-9])?(.{+([0-9]),x}).x",
+      "main",
+      {
+        "name": "beta",
+        "prerelease": true
+      },
+      {
+        "name": "develop",
+        "prerelease": true
+      },
+      {
+        "name": "next",
+        "prerelease": true
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      ["@semantic-release/npm", {
+        "pkgRoot": "dist/ngx-rest"
+      }],
+      [
+        "@semantic-release/github",
+        {
+          "releasedLabels": false,
+          "successComment": false
+        }
+      ]
+    ]
   }
 }
