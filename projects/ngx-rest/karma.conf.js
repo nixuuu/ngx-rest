@@ -28,17 +28,28 @@ module.exports = function (config) {
       dir: require('path').join(__dirname, '../../coverage/ngx-rest'),
       subdir: '.',
       reporters: [
+        { type: 'text-summary' },
         { type: 'html' },
-        { type: 'text-summary' }
+        { type: 'lcov' },
+        { type: 'cobertura' }
       ]
     },
-    reporters: ['progress', 'kjhtml'],
+    preprocessors: {
+      'src/lib/**/*.ts': ['coverage']
+    },
+    reporters: ['progress', 'coverage'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
-    singleRun: false,
+    browsers: ['ChromeHeadlessCI'],
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox']
+      }
+    },
+    singleRun: true,
     restartOnFileChange: true
   });
 };

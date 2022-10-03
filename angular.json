@@ -29,7 +29,8 @@
           "options": {
             "main": "projects/ngx-rest/src/test.ts",
             "tsConfig": "projects/ngx-rest/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-rest/karma.conf.js"
+            "karmaConfig": "projects/ngx-rest/karma.conf.js",
+            "codeCoverage": true
           }
         },
         "lint": {
