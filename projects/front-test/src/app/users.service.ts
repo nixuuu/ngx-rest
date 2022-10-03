@@ -1,25 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  ApiClient,
-  ArrayBufferRequest,
-  BlobRequest,
-  Get,
-  JsonRequest,
-  Post
-} from 'ngx-rest';
+import { ApiClient, BlobRequest, Get, JsonRequest, Post } from 'ngx-rest';
+import { BaseClient } from './base-client';
 import { UserListResponse } from './classes/UserListResponse';
 
 @Injectable({ providedIn: 'root' })
-@ApiClient({
-  baseUrl: 'https://jsonplaceholder.typicode.com/todos'
-})
-export class UsersService {
-  constructor(protected http: HttpClient) {}
+@ApiClient('todos')
+export class UsersService extends BaseClient {
+  constructor(protected http: HttpClient) {
+    super();
+  }
 
   @Get()
   list() {
-    return new ArrayBufferRequest();
+    return new JsonRequest();
   }
 
   @Post()

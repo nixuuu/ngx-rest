@@ -1,5 +1,8 @@
 import { BaseRequest } from './base.request';
 
 export class TextRequest extends BaseRequest<string> {
-  override responseType: 'text' = 'text';
+  constructor() {
+    super();
+    this.httpOptions.responseType = 'text';
+  }
 }

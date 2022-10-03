@@ -21,7 +21,7 @@ export class AppComponent {
     private second: SecondApiService
   ) {
     authService
-      .login(1)
+      .singlePost(1)
       .pipe(log('authService.login(1)'))
       .subscribe(console.log);
 

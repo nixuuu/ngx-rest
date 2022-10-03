@@ -1,5 +1,11 @@
 import { BaseRequest } from './base.request';
 
+/**
+ * @description JSON response type
+ */
 export class JsonRequest<T = any> extends BaseRequest<T> {
-  override responseType: 'json' = 'json';
+  constructor() {
+    super();
+    this.httpOptions.responseType = 'json';
+  }
 }

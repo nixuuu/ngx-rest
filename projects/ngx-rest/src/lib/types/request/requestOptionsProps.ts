@@ -2,11 +2,9 @@ import { HttpContext } from '@angular/common/http';
 import { Constructor } from '../constructor.type';
 import { Headers } from './headers';
 
-export interface RequestOptionsProps {
-  baseUrl?: string;
+export interface RequestOptionsProps<K = any> {
   context?: HttpContext;
-  queryParams?: any;
-  body?: any;
+  body?: K;
   headers?: Headers;
   observe?: 'body' | 'events' | 'response';
   params?: any;

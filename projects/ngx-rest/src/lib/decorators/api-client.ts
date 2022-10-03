@@ -1,5 +1,9 @@
 import { HttpContext } from '@angular/common/http';
-import { OperatorFunction } from 'rxjs';
+import {
+  joinApiClientParamsPaths,
+  transformApiClientParams
+} from '../helpers/transform-api-client-params';
+import { Constructor } from '../types/constructor.type';
 import { Headers } from '../types/request/headers';
 
 export const NGX_API_CLIENT_OPTIONS = Symbol('NGX_API_CLIENT_OPTIONS');
@@ -15,12 +19,23 @@ export interface ApiClientParamsOptions {
   httpContext?: HttpContext;
   headers?: Headers;
   path?: string;
-  pipes?: OperatorFunction<any, any>[];
 }
 
 export type ApiClientParams = string | ApiClientParamsOptions;
 export const ApiClient = (params: ApiClientParams) => {
-  return <T>(constructor: T): T => {
+  return <T extends Constructor>(constructor: T): T => {
+    const prototype = Object.getPrototypeOf(constructor);
+    let prototypeOptions: ApiClientParams =
+      Reflect.getMetadata(NGX_API_CLIENT_OPTIONS, prototype) ?? {};
+    prototypeOptions = transformApiClientParams(prototypeOptions);
+    params = transformApiClientParams(params);
+
+    if (prototypeOptions?.baseUrl && params?.baseUrl) {
+      throw new Error('Base url already defined');
+    }
+
+    params = joinApiClientParamsPaths(prototypeOptions, params);
+
     Reflect.defineMetadata(NGX_API_CLIENT_OPTIONS, params, constructor);
     return constructor;
   };

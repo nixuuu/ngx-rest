@@ -1,109 +1,179 @@
 import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import {
+  map,
+  Observable,
+  Observer,
+  OperatorFunction,
+  Subscription
+} from 'rxjs';
 import { Subscriber } from 'rxjs/internal/Subscriber';
-import { ApiClientParamsOptions, QueryParamValue } from '../../decorators';
+import { ApiClientParamsOptions } from '../../decorators';
 import { Methods } from '../../enums/methods';
 import { JoinBaseUrl } from '../../helpers/join-base-url';
 import { joinUrl } from '../../helpers/join-url';
 import { mapUrlParameters } from '../../helpers/map-url-parameters';
 import { Constructor } from '../../types/constructor.type';
-import { Headers } from '../../types/request/headers';
 import { RequestOptionsProps } from '../../types/request/requestOptionsProps';
 
-export class BaseRequest<T, K = any>
-  extends Observable<T>
-  implements RequestOptionsProps
-{
-  baseUrl?: string;
-  context?: HttpContext;
-  queryParams?: { [key: string]: QueryParamValue };
-  body?: K;
-  headers?: Headers;
-  observe?: 'body' | 'events' | 'response';
-  params?: { [param: string]: string };
-  reportProgress?: boolean;
-  responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
-  withCredentials?: boolean;
-  response?: Constructor<T>;
-
+export class BaseRequest<T, K = any> extends Observable<T> {
   controllerOptions?: ApiClientParamsOptions;
-
+  protected httpOptions: RequestOptionsProps<K> = {};
+  private requestPath: string = '';
+  private urlParams: any = {};
+  private requestMethod: Methods = Methods.GET;
+  private baseUrl?: string;
+  private pipes: OperatorFunction<any, any>[] = [];
+  private http?: HttpClient;
+  private responseMapConstructor?: Constructor<T>;
   private subscriber?: Subscriber<T>;
 
-  constructor(props?: RequestOptionsProps) {
+  constructor() {
     super((subscriber) => {
       this.subscriber = subscriber;
     });
-
-    Object.assign(this, props ?? {});
   }
 
   mergeApiClientOptions(options: ApiClientParamsOptions) {
+    const queryParams = this.httpOptions.params ?? {};
+    const headers = this.httpOptions.headers ?? {};
+
     this.controllerOptions = options;
     this.baseUrl = options.baseUrl ?? this.baseUrl;
-    this.queryParams = {
-      ...(this.queryParams ?? {}),
+    this.httpOptions.params = {
+      ...queryParams,
       ...(options.queryParams ?? {})
     };
-    this.headers = { ...(this.headers ?? {}), ...(options.headers ?? {}) };
+    this.httpOptions.headers = { ...headers, ...(options.headers ?? {}) };
     options.httpContext && this.mergeContext(options.httpContext);
+
+    return this;
   }
 
-  private mergeContext(context: HttpContext) {
-    if (!this.context) {
-      this.context = context;
-      return;
-    }
-    for (const token of context.keys()) {
-      this.context.set(token, context.get(token));
-    }
+  method(method: Methods): this {
+    this.requestMethod = method;
+    return this;
   }
 
-  toHttpOptions(): any {
-    return {
-      body: this.body,
-      headers: this.headers,
-      observe: this.observe,
-      params: new HttpParams({ fromObject: this.queryParams ?? {} }),
-      reportProgress: this.reportProgress,
-      responseType: this.responseType,
-      withCredentials: this.withCredentials
-    };
+  path(url: string): this {
+    this.requestPath = url;
+    return this;
   }
 
-  public makeRequest(method: Methods, path: string, http?: HttpClient): this {
-    if (!http) {
-      throw new Error('HttpClient is not provided');
+  map(response: Constructor<T>): this {
+    this.responseMapConstructor = response;
+    return this;
+  }
+
+  httpClient(http: HttpClient): this {
+    this.http = http;
+    return this;
+  }
+
+  params(params: any, force = false): this {
+    if (this.httpOptions.params && !force) {
+      throw new Error('Params already defined');
     }
+    this.urlParams = params;
+    return this;
+  }
+
+  queryParams(params: any): this {
+    this.httpOptions.params = params;
+    return this;
+  }
+
+  addParams(params: any): this {
+    this.urlParams = { ...this.urlParams, ...params };
+    return this;
+  }
+
+  body(body: any, force = false): this {
+    if (this.httpOptions.body && !force) {
+      throw new Error('Body already defined');
+    }
+    this.httpOptions.body = body;
+    return this;
+  }
+
+  public override subscribe(
+    observerOrNext?: Partial<Observer<T>> | ((value: T) => void) | null,
+    error?: ((error: any) => void) | null,
+    complete?: (() => void) | null
+  ): Subscription {
+    this.validateRequest();
+    // @ts-ignore
+    const subscription = super.subscribe(observerOrNext, error, complete);
+
+    const { http, requestMethod: method } = this;
+    let path = this.requestPath;
     path = joinUrl(this.controllerOptions?.path ?? '', path);
 
     const baseUrl = this.baseUrl ?? this.controllerOptions?.baseUrl;
     path = JoinBaseUrl(path, baseUrl ?? '');
-    path = mapUrlParameters(path, this.params ?? {});
+    path = mapUrlParameters(path, this.urlParams);
 
-    const httpRequest = http.request(
+    if (/:[a-z]+/i.test(path)) {
+      console.warn(`Path ${path} contains not mapped parameters`);
+    }
+
+    let observableObject = http!.request(
       method,
       path,
       this.toHttpOptions()
     ) as unknown as Observable<T>;
 
-    httpRequest
-      .pipe(
-        map((requestResponse) =>
-          this.response ? new this.response(requestResponse) : requestResponse
+    const pipes = [...this.pipes];
+    if (this.responseMapConstructor) {
+      pipes.push(
+        map(
+          (requestResponse) => new this.responseMapConstructor!(requestResponse)
         )
-      )
-      .subscribe({
-        next: (response) => this.subscriber?.next(response),
-        error: (error) => this.subscriber?.error(error),
-        complete: () => this.subscriber?.complete()
-      });
+      );
+    }
+    if (pipes.length > 0) {
+      observableObject = observableObject.pipe(...(pipes as []));
+    }
 
+    observableObject.subscribe(this.subscriber);
+
+    return subscription;
+  }
+
+  public override pipe(
+    ...operations: OperatorFunction<any, any>[]
+  ): Observable<T> {
+    this.pipes.push(...operations);
     return this;
   }
 
-  map(response: Constructor<T>): this {
-    this.response = response;
-    return this;
+  private mergeContext(newContext: HttpContext) {
+    const { context } = this.httpOptions;
+    if (!context) {
+      this.httpOptions.context = newContext;
+      return;
+    }
+    for (const token of newContext.keys()) {
+      context.set(token, newContext.get(token));
+    }
+  }
+
+  private toHttpOptions(): any {
+    return {
+      ...this.httpOptions,
+      params: new HttpParams({ fromObject: this.httpOptions.params ?? {} })
+    };
+  }
+
+  private validateRequest() {
+    if (!this.http) {
+      throw new Error('HttpClient is not provided');
+    }
+    const allowedMethodsWithBody = [Methods.POST, Methods.PUT, Methods.PATCH];
+    if (
+      !allowedMethodsWithBody.includes(this.requestMethod) &&
+      this.httpOptions.body
+    ) {
+      throw new Error('Body is not allowed');
+    }
   }
 }
