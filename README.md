@@ -5,21 +5,23 @@
 
   ```typescript
 import { ApiClient, Get, JsonRequest } from 'ngx-rest';
+import { Injectable } from '@angular/common';
 
+@Injectable({ providedIn: 'root' })
 @ApiClient({
-    baseUrl: 'https://api.github.com', 
+    baseUrl: 'https://api.github.com',
     headers: {
       'Content-Type': 'application/json', 
-        'Accept': 'application/json'
+      'Accept': 'application/json'
     }
 })
 export class GithubService {
     constructor(protected http: HttpClient) { }
     
-    @Get('/users/:username')
-    getUser(username: string) {
+    @Get('organizations')
+    getOrganizations() {
         return new JsonRequest()
-          .params({ username });
+            .map(OrganizationsResponse);
     }
 }
   ```
@@ -30,9 +32,17 @@ export class GithubService {
 import { ApiClient, Get, JsonRequest } from 'ngx-rest';
 import { GithubService } from './github.service';
 
+@Injectable({ providedIn: 'root' })
 @ApiClient('users')
 export class GithubUsersService extends GithubService {
     constructor(http: HttpClient) { super(http); }
+    
+    @Get(':username')
+    getUser(username: string) {
+        return new JsonRequest()
+            .params({ username })
+            .map(UserResponse);
+    }
     
     @Get(':username/repos')
     getRepos(username: string) {
