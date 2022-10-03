@@ -1,7 +1,6 @@
 import { Subscribable } from 'rxjs';
 import { isPromise } from 'rxjs/internal/util/isPromise';
 import { HttpClientFinder } from '../classes/http-client-finder';
-import { NgxServiceFinder } from '../classes/ngx-service-finder';
 import { BaseRequest } from '../classes/requests/base.request';
 import {
   ApiClientParams,
@@ -15,17 +14,17 @@ export const patchMethod = (method: Methods, path: string, callback: any) => {
     this: any,
     ...args: any[]
   ): PromiseLike<Subscribable<T>> | Subscribable<T> {
-    const ngxRest = NgxServiceFinder.getNgxService(this);
     const http = HttpClientFinder.getHttpClient(this);
 
-    if (!ngxRest && !http) {
-      throw new Error('NgxRestService or HttpClient not found');
+    if (!http) {
+      throw new Error('HttpClient not found');
     }
 
     let controllerOptions: ApiClientParams = Reflect.getMetadata(
       NGX_API_CLIENT_OPTIONS,
       this.constructor
     );
+
     if (typeof controllerOptions === 'string') {
       controllerOptions = { path: controllerOptions };
     }
@@ -35,9 +34,11 @@ export const patchMethod = (method: Methods, path: string, callback: any) => {
     ): PromiseLike<Subscribable<T>> | Subscribable<T> => {
       result.mergeApiClientOptions(controllerOptions as ApiClientParamsOptions);
 
-      return ngxRest
-        ? ngxRest.request<T>(method, path, result)
-        : result.makeRequest(method, path, http);
+      return result
+        .mergeApiClientOptions(controllerOptions as ApiClientParamsOptions)
+        .method(method)
+        .path(path)
+        .httpClient(http);
     };
 
     const options: BaseRequest<T> | Promise<BaseRequest<T>> = callback(...args);

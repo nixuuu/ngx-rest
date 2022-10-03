@@ -1,24 +1,26 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ApiClient, Get, NgxRestService, TextRequest } from 'ngx-rest';
-import { environment } from '../environments/environment';
+import { ApiClient, Get, JsonRequest, Post } from 'ngx-rest';
+import { BaseResponse } from '../interfaces/base-response';
 
 @Injectable({ providedIn: 'root' })
 @ApiClient({
   baseUrl: 'https://jsonplaceholder.typicode.com/',
-  queryParams: {
-    apiKey: environment.apiKey
-  }
+  path: 'posts'
 })
 export class AuthService {
-  constructor(protected http: NgxRestService) {}
+  constructor(protected http: HttpClient) {}
 
-  @Get('posts/:id')
-  login(id: any) {
-    return new TextRequest({
-      queryParams: {
-        page: 2
-      },
-      params: { id }
-    });
+  @Get(':id')
+  singlePost(id: any) {
+    return new JsonRequest()
+      .params({ id })
+      .queryParams({ sort: 'desc' })
+      .map(BaseResponse);
+  }
+
+  @Post()
+  addPost() {
+    return new JsonRequest().body({ name: 'test' }).map(BaseResponse);
   }
 }

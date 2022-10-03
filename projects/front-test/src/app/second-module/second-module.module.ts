@@ -1,14 +1,8 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {NGX_REST_OPTIONS, NgxRestModule} from "ngx-rest";
-
-
+import { NgModule } from '@angular/core';
 
 @NgModule({
   declarations: [],
-  imports: [
-    CommonModule,
-    NgxRestModule,
-  ],
+  imports: [CommonModule]
 })
-export class SecondModuleModule { }
+export class SecondModuleModule {}
