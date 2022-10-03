@@ -1,9 +1,15 @@
 # ngx-rest
 [![codecov](https://codecov.io/gh/nixuuu/ngx-rest/branch/main/graph/badge.svg?token=JCYUPBXGC1)](https://codecov.io/gh/nixuuu/ngx-rest)
 
+## Install
+    
+```bash
+npm install @nixcode/ngx-rest
+```
+
 ## Usage
 
-  ```typescript
+```typescript
 import { ApiClient, Get, JsonRequest } from 'ngx-rest';
 import { Injectable } from '@angular/common';
 
@@ -24,11 +30,12 @@ export class GithubService {
             .map(OrganizationsResponse);
     }
 }
-  ```
+```
 
 ### Extending the service
 
   ```typescript
+import { Injectable } from '@angular/common';
 import { ApiClient, Get, JsonRequest } from 'ngx-rest';
 import { GithubService } from './github.service';
 

@@ -1,9 +1,16 @@
 {
   "name": "@nixcode/ngx-rest",
   "version": "0.0.0",
+  "author": "Damian Plewa <damianp96@gmail.com>",
+  "license": "ISC",
+  "repository": "https://github.com/nixuuu/ngx-rest.git",
+  "homepage": "https://github.com/nixuuu/ngx-rest#readme",
   "peerDependencies": {
     "@angular/common": "^14.2.0",
     "@angular/core": "^14.2.0"
+  },
+  "bugs": {
+    "url": "https://github.com/nixuuu/ngx-rest/issues"
   },
   "dependencies": {
     "tslib": "^2.3.0"

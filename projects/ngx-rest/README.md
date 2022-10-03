@@ -1,24 +1,60 @@
-# NgxRest
+# ngx-rest
+[![codecov](https://codecov.io/gh/nixuuu/ngx-rest/branch/main/graph/badge.svg?token=JCYUPBXGC1)](https://codecov.io/gh/nixuuu/ngx-rest)
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.0.
+## Install
+    
+```bash
+npm install @nixcode/ngx-rest
+```
 
-## Code scaffolding
+## Usage
 
-Run `ng generate component component-name --project ngx-rest` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-rest`.
-> Note: Don't forget to add `--project ngx-rest` or else it will be added to the default project in your `angular.json` file. 
+```typescript
+import { ApiClient, Get, JsonRequest } from 'ngx-rest';
+import { Injectable } from '@angular/common';
 
-## Build
+@Injectable({ providedIn: 'root' })
+@ApiClient({
+    baseUrl: 'https://api.github.com',
+    headers: {
+      'Content-Type': 'application/json', 
+      'Accept': 'application/json'
+    }
+})
+export class GithubService {
+    constructor(protected http: HttpClient) { }
+    
+    @Get('organizations')
+    getOrganizations() {
+        return new JsonRequest()
+            .map(OrganizationsResponse);
+    }
+}
+```
 
-Run `ng build ngx-rest` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Extending the service
 
-## Publishing
+  ```typescript
+import { Injectable } from '@angular/common';
+import { ApiClient, Get, JsonRequest } from 'ngx-rest';
+import { GithubService } from './github.service';
 
-After building your library with `ng build ngx-rest`, go to the dist folder `cd dist/ngx-rest` and run `npm publish`.
-
-## Running unit tests
-
-Run `ng test ngx-rest` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+@Injectable({ providedIn: 'root' })
+@ApiClient('users')
+export class GithubUsersService extends GithubService {
+    constructor(http: HttpClient) { super(http); }
+    
+    @Get(':username')
+    getUser(username: string) {
+        return new JsonRequest()
+            .params({ username })
+            .map(UserResponse);
+    }
+    
+    @Get(':username/repos')
+    getRepos(username: string) {
+        return new JsonRequest()
+            .params({ username });
+    }
+}
+  ```
