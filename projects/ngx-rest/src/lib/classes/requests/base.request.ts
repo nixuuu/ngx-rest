@@ -17,7 +17,9 @@ import { RequestOptionsProps } from '../../types/request/requestOptionsProps';
 
 export class BaseRequest<T, K = any> extends Observable<T> {
   controllerOptions?: ApiClientParamsOptions;
-  protected httpOptions: RequestOptionsProps<K> = {};
+  protected httpOptions: RequestOptionsProps<K> = {
+    context: new HttpContext()
+  };
   private requestPath: string = '';
   private urlParams: any = {};
   private requestMethod: Methods = Methods.GET;
@@ -44,7 +46,7 @@ export class BaseRequest<T, K = any> extends Observable<T> {
       ...(options.queryParams ?? {})
     };
     this.httpOptions.headers = { ...headers, ...(options.headers ?? {}) };
-    options.httpContext && this.mergeContext(options.httpContext);
+    options.httpContext && this.mergeContexts(options.httpContext);
 
     return this;
   }
@@ -146,15 +148,28 @@ export class BaseRequest<T, K = any> extends Observable<T> {
     return this;
   }
 
-  private mergeContext(newContext: HttpContext) {
-    const { context } = this.httpOptions;
+  private mergeContexts(newContext: ApiClientParamsOptions['httpContext']) {
+    let { context } = this.httpOptions;
     if (!context) {
-      this.httpOptions.context = newContext;
-      return;
+      context = new HttpContext();
     }
+
+    if (newContext instanceof HttpContext) {
+      this.mergeContextValues(context, newContext);
+    } else if (Array.isArray(newContext)) {
+      for (const [token, value] of newContext) {
+        context.set(token, value ?? token.defaultValue());
+      }
+    }
+
+    this.httpOptions.context = context;
+  }
+
+  private mergeContextValues(context: HttpContext, newContext: HttpContext) {
     for (const token of newContext.keys()) {
       context.set(token, newContext.get(token));
     }
+    return context;
   }
 
   private toHttpOptions(): any {

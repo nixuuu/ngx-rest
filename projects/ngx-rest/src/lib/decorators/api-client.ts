@@ -1,4 +1,4 @@
-import { HttpContext } from '@angular/common/http';
+import { HttpContext, HttpContextToken } from '@angular/common/http';
 import {
   joinApiClientParamsPaths,
   transformApiClientParams
@@ -16,7 +16,9 @@ export type QueryParamValue =
 export interface ApiClientParamsOptions {
   baseUrl?: string;
   queryParams?: { [key: string]: QueryParamValue };
-  httpContext?: HttpContext;
+  httpContext?:
+    | HttpContext
+    | ([HttpContextToken<any>, any] | [HttpContextToken<any>])[];
   headers?: Headers;
   path?: string;
 }
