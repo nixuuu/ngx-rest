@@ -4,5 +4,6 @@
 
 export * from './lib/decorators';
 export * from './lib/classes/requests';
+export * from './lib/http-contexts';
 export { Headers } from './lib/types/request/headers';
 export { RequestOptionsProps } from './lib/types/request/requestOptionsProps';
