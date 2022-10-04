@@ -1,4 +1,9 @@
-import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpContext,
+  HttpHeaders,
+  HttpParams
+} from '@angular/common/http';
 import {
   map,
   Observable,
@@ -13,6 +18,7 @@ import { JoinBaseUrl } from '../../helpers/join-base-url';
 import { joinUrl } from '../../helpers/join-url';
 import { mapUrlParameters } from '../../helpers/map-url-parameters';
 import { Constructor } from '../../types/constructor.type';
+import { Headers, HeadersObject } from '../../types/request/headers';
 import { RequestOptionsProps } from '../../types/request/requestOptionsProps';
 
 export class BaseRequest<T, K = any> extends Observable<T> {
@@ -45,9 +51,25 @@ export class BaseRequest<T, K = any> extends Observable<T> {
       ...queryParams,
       ...(options.queryParams ?? {})
     };
-    this.httpOptions.headers = { ...headers, ...(options.headers ?? {}) };
+    this.httpOptions.headers = this.mergeHeaders(options.headers, headers);
     options.httpContext && this.mergeContexts(options.httpContext);
 
+    return this;
+  }
+
+  header(key: string, value: string): this {
+    const { headers } = this.httpOptions;
+    this.httpOptions.headers = this.mergeHeaders(headers, { [key]: value });
+    return this;
+  }
+
+  /**
+   *
+   * @param newHeaders
+   */
+  headers(newHeaders: HeadersObject): this {
+    const { headers } = this.httpOptions;
+    this.httpOptions.headers = this.mergeHeaders(headers, newHeaders);
     return this;
   }
 
@@ -163,6 +185,27 @@ export class BaseRequest<T, K = any> extends Observable<T> {
     }
 
     this.httpOptions.context = context;
+  }
+
+  private mergeHeaders(headers?: Headers, newHeaders?: Headers) {
+    headers = headers ?? {};
+    newHeaders = newHeaders ?? {};
+
+    if (!(headers instanceof HttpHeaders)) {
+      headers = new HttpHeaders(headers);
+    }
+    if (!(newHeaders instanceof HttpHeaders)) {
+      newHeaders = new HttpHeaders(newHeaders);
+    }
+
+    const headersKeys = newHeaders.keys();
+
+    for (const key of headersKeys) {
+      const headerValue = newHeaders.get(key);
+      headers = headers.set(key, headerValue ?? '');
+    }
+
+    return headers;
   }
 
   private mergeContextValues(context: HttpContext, newContext: HttpContext) {
