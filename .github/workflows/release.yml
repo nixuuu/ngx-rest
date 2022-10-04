@@ -4,11 +4,11 @@ on:
   push:
     paths:
       - "projects/ngx-rest/**"
-    branches: [ "main" ]
+    branches: [ "main", "beta", "develop" ]
   pull_request:
     paths:
       - "projects/ngx-rest/**"
-    branches: [ "main" ]
+    branches: [ "main", "beta" ]
 
 jobs:
   test:
@@ -28,6 +28,7 @@ jobs:
   release:
     name: Release
     needs: test
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
