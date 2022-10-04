@@ -13,7 +13,10 @@ export class UsersService extends BaseClient {
 
   @Get()
   list() {
-    return new JsonRequest();
+    return new JsonRequest().header('x-test2', '2').headers({
+      'x-test3': '3',
+      'x-test': '4'
+    });
   }
 
   @Post()

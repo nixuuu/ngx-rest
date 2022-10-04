@@ -5,6 +5,9 @@ import { ApiClient, NgxApiToken, NgxAuthenticatedToken } from 'ngx-rest';
   httpContext: [
     [NgxApiToken, true],
     [NgxAuthenticatedToken, true]
-  ]
+  ],
+  headers: {
+    'x-test': '1'
+  }
 })
 export class BaseClient {}
