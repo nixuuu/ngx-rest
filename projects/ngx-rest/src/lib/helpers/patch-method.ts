@@ -32,8 +32,6 @@ export const patchMethod = (method: Methods, path: string, callback: any) => {
     const handleSyncCallback = (
       result: BaseRequest<T>
     ): PromiseLike<Subscribable<T>> | Subscribable<T> => {
-      result.mergeApiClientOptions(controllerOptions as ApiClientParamsOptions);
-
       return result
         .mergeApiClientOptions(controllerOptions as ApiClientParamsOptions)
         .method(method)
