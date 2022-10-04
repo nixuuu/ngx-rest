@@ -94,7 +94,7 @@ export class BaseRequest<T, K = any> extends Observable<T> {
   }
 
   params(params: any, force = false): this {
-    if (this.httpOptions.params && !force) {
+    if (this.urlParams && !force) {
       throw new Error('Params already defined');
     }
     this.urlParams = params;
