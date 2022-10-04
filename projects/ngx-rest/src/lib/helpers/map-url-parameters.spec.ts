@@ -35,4 +35,17 @@ describe('mapUrlParameters', () => {
       'url/1-slug'
     );
   });
+  it('should stringify object value', () => {
+    expect(mapUrlParameters('url/:id', { id: { a: 1 } })).toBe('url/{"a":1}');
+  });
+  it('should stringify array value', () => {
+    expect(mapUrlParameters('url/:id', { id: [1, 2] })).toBe('url/[1,2]');
+  });
+  it('should not stringify circular object value', () => {
+    const obj: any = { a: 1 };
+    obj['b'] = obj;
+    expect(mapUrlParameters('url/:id', { id: obj })).toBe(
+      'url/[object Object]'
+    );
+  });
 });
