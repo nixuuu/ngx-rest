@@ -27,7 +27,7 @@ export class BaseRequest<T, K = any> extends Observable<T> {
     context: new HttpContext()
   };
   private requestPath: string = '';
-  private urlParams: any = {};
+  private urlParams?: any;
   private requestMethod: Methods = Methods.GET;
   private baseUrl?: string;
   private pipes: OperatorFunction<any, any>[] = [];
@@ -107,7 +107,7 @@ export class BaseRequest<T, K = any> extends Observable<T> {
   }
 
   addParams(params: any): this {
-    this.urlParams = { ...this.urlParams, ...params };
+    this.urlParams = { ...(this.urlParams ?? {}), ...params };
     return this;
   }
 
@@ -134,7 +134,7 @@ export class BaseRequest<T, K = any> extends Observable<T> {
 
     const baseUrl = this.baseUrl ?? this.controllerOptions?.baseUrl;
     path = JoinBaseUrl(path, baseUrl ?? '');
-    path = mapUrlParameters(path, this.urlParams);
+    path = mapUrlParameters(path, this.urlParams ?? {});
 
     if (/:[a-z]+/i.test(path)) {
       console.warn(`Path ${path} contains not mapped parameters`);
